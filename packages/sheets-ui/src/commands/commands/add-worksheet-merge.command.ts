@@ -37,6 +37,7 @@ import { IConfirmService } from '@univerjs/ui';
 import type { IAccessor } from '@wendellhu/redi';
 
 import { checkCellContentInRanges, getClearContentMutationParamsForRanges } from '../../common/utils';
+import { getMergeableSelectionsByType, MergeType } from './utils/selection-utils';
 
 export interface IAddMergeCommandParams {
     value?: Dimension.ROWS | Dimension.COLUMNS;
@@ -129,9 +130,11 @@ export const AddWorksheetMergeAllCommand: ICommand = {
         const commandService = accessor.get(ICommandService);
         const selectionManagerService = accessor.get(SelectionManagerService);
         const selections = selectionManagerService.getSelectionRanges();
-        if (!selections?.length) {
+        const mergeableSelections = getMergeableSelectionsByType(MergeType.MergeAll, selections);
+        if (!mergeableSelections?.length) {
             return false;
         }
+
         const univerInstanceService = accessor.get(IUniverInstanceService);
 
         const workbook = univerInstanceService.getCurrentUniverSheetInstance();
@@ -144,7 +147,7 @@ export const AddWorksheetMergeAllCommand: ICommand = {
         const subUnitId = workSheet.getSheetId();
 
         return commandService.executeCommand(AddWorksheetMergeCommand.id, {
-            selections,
+            selections: mergeableSelections,
             unitId,
             subUnitId,
         } as IAddMergeCommandParams);
@@ -158,7 +161,8 @@ export const AddWorksheetMergeVerticalCommand: ICommand = {
         const commandService = accessor.get(ICommandService);
         const selectionManagerService = accessor.get(SelectionManagerService);
         const selections = selectionManagerService.getSelectionRanges();
-        if (!selections?.length) {
+        const mergeableSelections = getMergeableSelectionsByType(MergeType.MergeVertical, selections);
+        if (!mergeableSelections?.length) {
             return false;
         }
         const univerInstanceService = accessor.get(IUniverInstanceService);
@@ -174,7 +178,7 @@ export const AddWorksheetMergeVerticalCommand: ICommand = {
 
         return commandService.executeCommand(AddWorksheetMergeCommand.id, {
             value: Dimension.COLUMNS,
-            selections,
+            selections: mergeableSelections,
             unitId,
             subUnitId,
         } as IAddMergeCommandParams);
@@ -188,7 +192,8 @@ export const AddWorksheetMergeHorizontalCommand: ICommand = {
         const commandService = accessor.get(ICommandService);
         const selectionManagerService = accessor.get(SelectionManagerService);
         const selections = selectionManagerService.getSelectionRanges();
-        if (!selections?.length) {
+        const mergeableSelections = getMergeableSelectionsByType(MergeType.MergeHorizontal, selections);
+        if (!mergeableSelections?.length) {
             return false;
         }
         const univerInstanceService = accessor.get(IUniverInstanceService);
@@ -203,7 +208,7 @@ export const AddWorksheetMergeHorizontalCommand: ICommand = {
         const subUnitId = workSheet.getSheetId();
         return commandService.executeCommand(AddWorksheetMergeCommand.id, {
             value: Dimension.ROWS,
-            selections,
+            selections: mergeableSelections,
             unitId,
             subUnitId,
         } as IAddMergeCommandParams);
